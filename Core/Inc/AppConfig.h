@@ -48,4 +48,7 @@
 
 // PID
 #define USE_PID TRUE
+
+//RemoteControl
+#define USE_REMOTE_CONTROL TRUE
     

@@ -5,12 +5,15 @@
 #include "PID.hpp"     // Include PID
 #include "main.h"
 #include "task.h"  // Include task
+#include "RemoteControl.hpp"
 
 /*Allocate the stack for our PID task*/
 StackType_t uxPIDTaskStack[configMINIMAL_STACK_SIZE];
+StackType_t uxDR16TaskStack[configMINIMAL_STACK_SIZE];
 StackType_t uxRCTaskStack[configMINIMAL_STACK_SIZE];
 /*Declare the PCB for our PID task*/
 StaticTask_t xPIDTaskTCB;
+StaticTask_t xDR16TaskTCB;
 StaticTask_t xRCTaskTCB;
 
 /**
@@ -38,7 +41,7 @@ void userTask(void *)
 /**
  * @todo In case you like it, please implement your own tasks
  */
-void rcTask(void *)
+void dr16Task(void *)
 {
     DR16::init();
     DR16::startReceiveRC();
@@ -53,6 +56,17 @@ void rcTask(void *)
     }
 }
 
+void rcTask(void *)
+{
+    while (1)
+    {
+        RemoteControl::classis_set_update();
+        RemoteControl::forward_kinematics();
+        RemoteControl::classis_pid_calculate();
+
+        vTaskDelay(1);
+    }
+}
 
 /**
  * @brief Intialize all the drivers and add task to the scheduler
@@ -71,6 +85,14 @@ void startUserTasks()
                       uxPIDTaskStack,
                       &xPIDTaskTCB);  // Add the main task into the scheduler
     
+    xTaskCreateStatic(dr16Task,
+                      "dr16Task",
+                      configMINIMAL_STACK_SIZE,
+                      NULL,
+                      1,
+                      uxDR16TaskStack,
+                      &xDR16TaskTCB);
+
     xTaskCreateStatic(rcTask,
                       "rcTask",
                       configMINIMAL_STACK_SIZE,
