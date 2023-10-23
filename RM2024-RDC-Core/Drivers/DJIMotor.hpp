@@ -1,16 +1,3 @@
-/**
- * @file DJIMotor.hpp
- * @author - GUO, Zilin
- *         - Your Name
- * @brief This is the DJIMotor template codes for RM2024-Tutorial PA3 and RDC
- * @note  You could directly transplant your code to the RDC after finishing PA3
- * @note  If you do not like the template I provide for you, you could remove
- * all of them and use your own
- * @copyright This file is only for HKUST Enterprize RM2024 internal
- * competition. All Rights Reserved.
- *
- */
-
 #pragma once
 #include "AppConfig.h"
 
@@ -21,37 +8,31 @@
 #endif
 
 #include "main.h"
+#include "can.h"
+
 
 namespace DJIMotor
 {
+enum Motor_ID
+{
+    CAN_CHASSIS_ALL_ID = 0x200,
+    CAN_3508_M1_ID = 0x201,
+    CAN_3508_M2_ID = 0x202,
+    CAN_3508_M3_ID = 0x203,
+    CAN_3508_M4_ID = 0x204,
 
-/**
- * @brief A motor's handle. We do not require you to master the cpp class
- * syntax.
- * @brief However, some neccessary OOP thought should be shown in your code.
- * @brief For example, if you have multiple motors, which is going to happen in
- * RDC (You have at least 4 wheels to control)
- * @brief You are able to write a "template" module for all the abstract motors,
- * and instantiate them with different parameters
- * @brief Instead of copy and paste your codes for four times
- * @brief This is what we really appreiciate in our programming
- */
+    CAN_UPPER_ALL_ID = 0x1FF,
+    CAN_GRIPPING_MOTOR_ID = 0x205,
+    CAN_LIFTING_MOTOR_ID = 0x206,
+};
+
 struct DJIMotor
 {
-    uint16_t canID;  // You need to assign motor's can ID for different motor
-                     // instance
-    /*======================================================*/
-    /**
-     * @brief Your self-defined variables are defined here
-     * @note  Please refer to the GM6020, M3508 motor's user manual that we have
-     * released on the Google Drive
-     * @example:
-     * uint16_t encoder;
-     * uint16_t rpm;
-     * float orientation; //  get the accumulated orientation of the motor
-     * ......
-     */
-    /*=======================================================*/
+    uint16_t ecd;
+    int16_t speed_rpm;
+    int16_t given_current;
+    uint8_t temperate;
+    int16_t last_ecd;
 };
 
 /**
@@ -62,64 +43,35 @@ struct DJIMotor
 void init();
 
 /**
- * @brief The encoder getter fucntion
- * @param canID The unique CAN id of your motor
- * @note  You need to return the current encoder feedback outward, because you
- * need it in the PID module
- * @retval motor's raw encoder
- */
-float getEncoder(uint16_t canID);
+  * @brief          hal CAN fifo call back, receive motor data
+  * @param[in]      hcan, the point to CAN handle
+  * @retval         none
+  */
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
 
 /**
- * @brief The rpm getter function
- * @param canID The unique CAN id of your motor
- * @note You need to return the current rpm feedback outward, becacause you need
- * it in the PID module
- * @retval motor's rpm
- */
-float getRPM(uint16_t canID);
+  * @brief          send control current of motor (0x201, 0x202, 0x203, 0x204)
+  * @param[in]      motor1: (0x201) 3508 motor control current, range [-16384,16384] 
+  * @param[in]      motor2: (0x202) 3508 motor control current, range [-16384,16384] 
+  * @param[in]      motor3: (0x203) 3508 motor control current, range [-16384,16384] 
+  * @param[in]      motor4: (0x204) 3508 motor control current, range [-16384,16384] 
+  * @retval         none
+  */
+void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
 
 /**
- * @brief Set the motor's output here
- * @note  You might need to refer to the user manual to "clamp" the maximum or
- * the minimun output
- * @param output, canID The motor's output, unique can Id
- * @note
- * - For GM6020, it's the motor's voltage
- * - For M3508, it's the motor's currnet
- * @retval
- */
-void setOutput(int16_t output);
+  * @brief          send control current of motor (0x205, 0x206)
+  * @param[in]      motor1: (0x205) gripping motor control current, range [-16384,16384] 
+  * @param[in]      motor2: (0x206) lifting motor control current, range [-16384,16384] 
+  * @retval         none
+  */
+void CAN_cmd_upper(int16_t gripping_motor, int16_t lifting_motor);
 
 /**
- * @brief Transmit the current set motor's output to the groups of motor based
- * on the CAN header
- * @param header The header of groups of motor
- * @note For clear reference, please refer to the GM6020 and M3508 User manual
- * @param
- * @retval
- */
-void transmit(uint16_t header);
+  * @brief Get DJIMotor data ptr
+  * @return ptr to const DJIMotor data
+  */
+const DJIMotor *get_motor_measure_point(uint8_t i);
 
-/*===========================================================*/
-/**
- * @brief You can define your customized function here
- * @note  It might not be necessary in your PA3, but it's might be beneficial
-for your RDC development progress
- * @example
- * float get(uint16_t canID);
- *
- * @note You could try to normalize the encoder's value and work out the
-accumulated position(orientation) of the motor
- * float getPosition(uint16_t canID);
- * ..... And more .....
- *
-============================================================*/
-
-
-
-
-
-/*===========================================================*/
 }  // namespace DJIMotor
 #endif  // USE_DJI_MOTOR
