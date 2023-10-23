@@ -24,12 +24,20 @@ void userTask(void *)
     /* Your user layer codes begin here*/
     /*=================================================*/
 
+    // initialize the PID controller
+
+    //initialize the CAN bus
+
+    //initialize the motor
+
     /* Your user layer codes end here*/
     /*=================================================*/
     while (true)
     {
         /* Your user layer codes in loop begin here*/
         /*=================================================*/
+
+        // set the target velocity of the motor
 
         /* Your user layer codes in loop end here*/
         /*=================================================*/
