@@ -47,11 +47,6 @@ namespace DR16{
     DR16Data* getDR16Data(void);
 
     /**
-     * @brief Update time to current time
-    */
-    void updateCurrentTime(void);
-
-    /**
      * @brief Reset timeout
     */
     void resetTimeout(void);
@@ -84,18 +79,6 @@ namespace DR16{
      * @param huart: UART handler
     */
     void DR16ErrorCallback(UART_HandleTypeDef *huart);
-
-    /**
-     * @brief Adjust the format of output data
-     * @param data: DR16Data
-    */
-    void formatOutput(DR16::DR16Data *data);
-
-    /**
-     * @brief Callback function for UART DMA Transmit complete
-     * @param huart: UART handler
-    */
-    void HAL_UART_DMATransmitCpltCallback(UART_HandleTypeDef *huart);
 
 }
 
