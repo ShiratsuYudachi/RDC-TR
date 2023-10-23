@@ -140,7 +140,7 @@ void DR16ErrorCallback(UART_HandleTypeDef *huart){
     return;
 }
 
-uint16_t txBuffer[95] = {0};
+// uint16_t txBuffer[95] = {0};
 
 void formatOutput(DR16::DR16Data *data){
     sprintf((char *)txBuffer, 
