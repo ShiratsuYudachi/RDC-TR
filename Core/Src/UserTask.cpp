@@ -45,11 +45,6 @@ void rcTask(void *)
 
     DR16::DR16Data *data = DR16::getDR16Data();
 
-    formatOutput(data);
-
-    extern uint16_t txBuffer[95];
-    HAL_UART_Transmit_DMA(&huart3, (uint8_t *)txBuffer, 95);
-
     while (1)
     {
         DR16::connectionCheck();

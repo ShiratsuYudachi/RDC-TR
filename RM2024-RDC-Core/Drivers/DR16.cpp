@@ -18,7 +18,6 @@ static uint8_t rc_buffer[2][18];
 // Control info & flags
 static uint64_t signal_received = 0;
 static uint64_t signal_lost = 0;
-static uint64_t currTime = 0;
 static uint64_t connection_timeout = 0;
 
 void init(void){
@@ -38,12 +37,6 @@ void startReceiveRC(){
 DR16Data *getDR16Data(void){
 
     return rc_data_ptr;
-}
-
-void updateCurrentTime(void){
-    currTime = HAL_GetTick();
-
-    return;
 }
 
 void resetTimeout(void){
@@ -72,7 +65,6 @@ void connectionCheck(void){
     } else {
         rc_data.rc.isConnect = true;
     }
-    updateCurrentTime();
 
     return;
 }
@@ -140,22 +132,6 @@ void DR16ErrorCallback(UART_HandleTypeDef *huart){
     return;
 }
 
-uint16_t txBuffer[95] = {0};
-
-void formatOutput(DR16::DR16Data *data){
-    sprintf((char *)txBuffer, 
-                "ch0: %-4d, ch1: %-5d, ch2: %-4d, ch3: %-4d, s1: %-1d, s2: %-1d, wheel: %-4d, isConnect: %-1d\r\n", 
-                data->rc.stick.ch0, data->rc.stick.ch1, data->rc.stick.ch2, data->rc.stick.ch3, 
-                data->rc.sw.s1, data->rc.sw.s2, data->rc.wheel, data->rc.isConnect
-            );
-}
-
-void HAL_UART_DMATransmitCpltCallback(UART_HandleTypeDef *huart){
-    if (huart->Instance == USART3){
-        formatOutput(DR16::getDR16Data());
-        HAL_UART_Transmit_DMA(&huart3, (uint8_t *)txBuffer, 95);
-    }
-}
 
 }  // namespace DR16
 
